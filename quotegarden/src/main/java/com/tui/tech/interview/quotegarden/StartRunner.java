@@ -5,6 +5,8 @@ import com.tui.tech.interview.quotegarden.repository.QuoteRepository;
 import com.tui.tech.interview.quotegarden.response.QuoteData;
 import com.tui.tech.interview.quotegarden.response.QuoteGardenResponse;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -31,12 +33,14 @@ public class StartRunner implements ApplicationRunner {
     @Autowired
     private WebClient webClient;
 
+    private static final Logger logger = LogManager.getLogger(StartRunner.class);
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
         Long count = repository.findAll().count().block();
         if(count == 0) {
-            System.out.println("Database population started.");
+            logger.info("Database population started.");
             Stream.iterate(1, i -> i + 1).takeWhile(i -> i < 148).forEach(i -> {
                 String atualPage = i+"";
                 QuoteGardenResponse response = webClient.get()
@@ -54,10 +58,10 @@ public class StartRunner implements ApplicationRunner {
                         .forEach(quote -> System.out.println(quote));
 
             });
-            System.out.println("Database populated.");
+            logger.info("Database populated.");
         }
         else {
-            System.out.println("Database is already populated.");
+            logger.info("Database is already populated.");
         }
 
     }
